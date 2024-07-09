@@ -8,7 +8,8 @@ for name, val in collect_env().items():
 print('Done'.center(64, '-'))
 
 # 加载模型
-model_name = 'THUDM/glm-4-9b-chat-1m'
+# C:\Users\Marisa3\.cache\huggingface\hub\models--THUDM--glm-4-9b-chat\snapshots\04419001bc63e05e70991ade6da1f91c4aeec278
+model_name = 'THUDM/glm-4-9b-chat'
 int4 = True
 
 if 'glm-4' in model_name.lower():

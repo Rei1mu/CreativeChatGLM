@@ -1,7 +1,7 @@
 import time
 import json
 from typing import List, Dict
-
+import os
 import torch
 from transformers import AutoModel, AutoTokenizer
 from transformers import LogitsProcessor, LogitsProcessorList
@@ -19,7 +19,8 @@ class InvalidScoreLogitsProcessor(LogitsProcessor):
             scores[..., 5] = 5e4
         return scores
 
-
+# MODEL_PATH="C:\Users\Marisa3\.cache\huggingface\hub\models--THUDM--glm-4-9b-chat\snapshots\04419001bc63e05e70991ade6da1f91c4aeec278"
+MODEL_PATH = os.environ.get('MODEL_PATH', 'THUDM/glm-4-9b-chat')
 class GLM4(BasePredictor):
 
     def __init__(self, model_name, int4=False):
@@ -28,24 +29,24 @@ class GLM4(BasePredictor):
         start = time.perf_counter()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_name, trust_remote_code=True)
+           MODEL_PATH, trust_remote_code=True)
         if 'slim' in model_name:
             model = AutoModel.from_pretrained(
-                model_name, trust_remote_code=True)
+               MODEL_PATH, trust_remote_code=True)
             if self.device == 'cuda':
                 model = model.half().to(self.device)
             else:
                 model = model.float()
         elif 'int4' in model_name:
             model = AutoModel.from_pretrained(
-                model_name, trust_remote_code=True)
+                MODEL_PATH, trust_remote_code=True)
             if self.device == 'cuda':
                 model = model.half().to(self.device)
             else:
                 model = model.float()
         else:
             model = AutoModel.from_pretrained(
-                model_name,
+              MODEL_PATH,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True,
                 torch_dtype=torch.float16
@@ -156,7 +157,7 @@ class GLM4(BasePredictor):
 
 
 def test():
-    model_name = 'THUDM/glm-4-9b-chat-1m'
+    model_name = 'THUDM/glm-4-9b-chat'
 
     predictor = GLM4(model_name)
     top_p = 0.01
@@ -182,7 +183,7 @@ def test():
 
 def test2():
     from glm4.modeling_chatglm import ChatGLMForConditionalGeneration
-    model_name = 'THUDM/glm-4-9b-chat-1m'
+    model_name = 'THUDM/glm-4-9b-chat'
     device = 'cuda'
     tokenizer = AutoTokenizer.from_pretrained(
         model_name, trust_remote_code=True)
